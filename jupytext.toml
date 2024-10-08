@@ -1,0 +1,3 @@
+# Always pair ipynb notebooks to md files
+formats = "qmd,ipynb"
+notebook_extensions = "ipynb,qmd"

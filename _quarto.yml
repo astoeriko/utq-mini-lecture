@@ -1,0 +1,20 @@
+project:
+  type: website
+  render: 
+    - advection_dispersion.qmd
+
+website:
+  title: "Interactive Plot"
+  navbar:
+    left:
+      - href: advection_dispersion.qmd
+        text: Home
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+
+
+

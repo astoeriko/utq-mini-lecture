@@ -1,0 +1,46 @@
+---
+title: The Advection-Dispersion-Reaction Equation in 1-D
+author: Anna Störiko
+format:
+  html:
+    embed-resources: true
+execute:
+  echo: false
+  warning: false
+jupyter:
+  jupytext:
+    text_representation:
+      extension: .qmd
+      format_name: quarto
+      format_version: '1.0'
+      jupytext_version: 1.16.1
+  kernelspec:
+    display_name: 'Python [conda env:env1401]'
+    language: python
+    name: conda-env-env1401-py
+---
+
+```{python}
+import numpy as np
+from scipy.special import erfc
+import matplotlib.pyplot as plt
+import xarray as xr
+import hvplot.xarray
+import hvplot.pandas
+import pandas as pd
+import panel as pn
+import holoviews as hv
+from mass_transport.interactive_plots import plot_solution_interactive
+from mass_transport.analytical_solutions import base_solution
+```
+
+```{python}
+#| output: false
+hv.extension("bokeh") # same as hvplot.extension("bokeh")
+pn.extension(design="material")
+```
+
+```{python}
+interactive_plots = plot_solution_interactive(base_solution)
+interactive_plots.embed(max_states=20, max_opts=20)
+```
