@@ -1,0 +1,132 @@
+---
+title: Transport processes in water
+format:
+  html: default
+  typst:
+    mainfont: Source Serif 4
+    sansfont: Source Sans 3
+    papersize: a4
+    include-before-body:
+      - text: |
+          #show heading: set text(weight: "semibold", size: 13pt)
+execute:
+  echo: false
+  cache: true
+jupyter:
+  jupytext:
+    text_representation:
+      extension: .qmd
+      format_name: quarto
+      format_version: '1.0'
+      jupytext_version: 1.16.1
+  kernelspec:
+    display_name: 'Python [conda env:env1401]'
+    language: python
+    name: conda-env-env1401-py
+---
+
+# Advection
+
+Advection refers to the transport of dissolved substances carried by the bulk movement of water, similar to how passengers move with a car. Solutes travel at the same velocity as the water itself.
+
+
+# Dispersion
+
+Water flow velocity often varies at small scales (millimeters or smaller). These variations cause some water parcels to move faster or slower than others, resulting in the spreading of solutes beyond what would occur by diffusion alone.
+
+For example, in groundwater, water flows through pores between grains, moving faster in larger pores and more slowly in smaller ones. Flow at the center of a pore is faster than near the edges due to friction.
+In rivers, flow is turbulent, with velocity fluctuating chaotically in space and time.
+
+On a larger scale, we often cannot explicitly resolve these variations and only consider the average flow velocity. The stretching of a solute plume caused by unresolved small-scale variations is called dispersion. In mathematical models, dispersion is often treated similarly to diffusion for simplicity.
+
+
+# Molecular Diffusion
+
+Molecular diffusion results from the thermal motion of molecules causing them to collide and move randomly. This random movement of solute and water molecules tends to equalize concentration differences in space. The rate of diffusion is proportional to the concentration gradient: the greater the gradient, the faster the diffusion.
+
+This is illustrated in @fig-diffusion: Two types of particles are initially separated. Each particle moves randomly, changing direction frequently. Without fluid flow, the average number of particles on each side remains the same. However, because there are initially more blue particles on the left, more blue particles will move from left to right than vice versa. Over time, this leads to a more even distribution of both blue and orange particles.
+
+```{python}
+#| label: fig-diffusion
+#| fig-cap: Illustration of the principle of molecular diffusion
+import numpy as np
+import xarray as xr
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+sns.set(context="paper", style="white", font="Source Sans 3")
+
+nx = 30
+ny = 15
+dx = 1
+dy = 1
+x = np.linspace(0, nx-1, num=nx) * dx + dx/2
+y = np.linspace(0, ny-1, num=ny) * dy + dy/2
+domain_limits = xr.DataArray([nx*dx, ny*dy], dims="axis")
+x_mid = domain_limits.isel(axis=0) / 2
+
+initial_positions = xr.DataArray(
+  np.array(np.meshgrid(x, y)).reshape(2, nx*ny),
+  dims=("axis","particle"),
+  coords={"axis": ["x", "y"]}
+)
+left_half = initial_positions.sel(axis="x") < x_mid
+scaling_factor = 0.3
+nt = 3000
+
+displacements = xr.DataArray(
+  np.random.standard_normal(size=(*initial_positions.shape, nt)),
+  dims=("axis", "particle", "time")
+) * scaling_factor
+
+positions = xr.DataArray(
+  np.zeros_like(displacements),
+  dims=("axis", "particle", "time"),
+  coords={"axis": ["x", "y"]}
+  )
+positions.loc[:, :, 0] = initial_positions
+
+def reflect_particles(positions, domain_limits):
+  positions = positions % (2 * domain_limits)
+  # Reflect values that exceed the domain by subtracting the excess from the domain limit
+  over_domain = positions > domain_limits
+  positions = xr.where(over_domain, 2 * domain_limits - positions, positions)
+  return positions
+
+for t in range(nt-1):
+  new_positions = (positions.sel(time=t) + displacements.sel(time=t))
+  reflected =  reflect_particles(new_positions, domain_limits)
+  positions.loc[:, :, t+1] = reflected
+
+
+ds = (
+  xr.Dataset(positions
+  .isel(time=[0, 200, -1])
+  .to_dataset("axis"))
+  .assign(colors=~left_half)
+)
+
+g = ds.plot.scatter(
+  x="x",
+  y="y",
+  col="time",
+  hue="colors",
+  colors=sns.color_palette(n_colors=2),
+  s=15,
+  add_colorbar=False,
+  add_legend=False,
+  add_labels=False,
+  add_title=False,
+  xticks=[],
+  yticks=[],
+  figsize=(6,2)
+)
+
+titles = ["initial state", "short time later", "end of the simulation"]
+
+for a, title in zip(g.axs.flat, titles):
+  a.set_aspect("equal")
+  a.set_xlabel("")
+  a.set_ylabel("")
+  a.set_title(title)
+```
