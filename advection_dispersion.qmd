@@ -1,12 +1,12 @@
 ---
-title: The Advection-Dispersion-Reaction Equation in 1-D
-author: Anna Störiko
+title: Effect of Advection and Dispersion
 format:
   html:
     embed-resources: true
 execute:
   echo: false
   warning: false
+reference-location: margin
 jupyter:
   jupytext:
     text_representation:
@@ -40,7 +40,29 @@ hv.extension("bokeh") # same as hvplot.extension("bokeh")
 pn.extension(design="material")
 ```
 
+# Interactive Plot
+
 ```{python}
 interactive_plots = plot_solution_interactive(base_solution)
 interactive_plots.embed(max_states=20, max_opts=20)
 ```
+
+# Tasks
+
+Use the sliders in the interactive plot to change the value of the parameters $v$ and $D$.
+Observe the effect on the shape of the concentration curve.
+Answer the following questions:
+
+- How can you explain the increase of the concentration over time?
+- How does a larger value of $v$ influence the concentration curve?
+- How does a larger value of $D$ influence the concentration curve?
+- What do the parameters $v$ and $D$ represent? Which process do they correspond to, respectively?
+
+# Background: Breakthrough Curves
+
+The interactive plot above shows a breakthrough curve, that is, a concentration curve measured over time, showing the “breakthrough” of a chemical.
+You can imagine that it was measured with the sensor shown in the following sketch, that illustrates a contaminant plume leaking into groundwater.
+^[Note that both the sketch and the model used to compute the breakthrough curve are a very simplified representation of contaminant transport.]
+
+![](../materials/plume_sketch.png)
+

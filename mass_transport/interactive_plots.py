@@ -85,11 +85,6 @@ def arrange_plots_and_widgets(
 ):
     "Arrange all plots and widgets"
     return pn.Column(
-        # pn.Row(
-        # pn.Column("# Profile", plot_profile.panel(), t_observation.widgets()),
-        # pn.Column("# Profile", plot_profile.panel()),
-        # pn.layout.Divider(),
-        # pn.Column("# Breakthrough Curve", plot_btc.panel(), x_observation),
         "# Parameters",
         pn.WidgetBox(
             pn.Row(
